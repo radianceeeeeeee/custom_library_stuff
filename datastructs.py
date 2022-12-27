@@ -348,7 +348,6 @@ class BinaryTree:
             print("   " * whitespace + "+--" + str(node.right.value))
             self.print_tree_helper(node.right, level + 1, whitespace + 1)       
 
-
 class TreeNode:
     def __init__(self, value, parent = None):
         self.value = value
@@ -379,19 +378,27 @@ class Tree:
             print("   " * whitespace + symbol + "--" + str(node.children[c].value))
             self.print_tree_helper(node.children[c], level + 1, whitespace + 1)
 
-root = BTreeNode(0)
-nodes = []
+class Graph:
+    def __init__(self):
+        self.vertices = set()
+        self.edges = {}
 
-for i in range(1, 21):
-    nodes.append(BTreeNode(i))
+    def add_vertex(self, value):
+        self.vertices.add(value)
+    
+    def add_edge(self, v1, v2, undirected = True):
+        if v1 in self.edges.keys():
+            self.edges[v1].add(v2)
+        else:
+            self.edges[v1] = {v2}
 
-root.left = nodes[0]
-root.right = nodes[1]
+        if undirected:
+            if v2 in self.edges.keys():
+                self.edges[v2].add(v1)
+            else:
+                self.edges[v2] = {v1}            
 
-for i in range(0, 18, 2):
-    nodes[i].left = nodes[i + 2]
-    nodes[i + 1].right = nodes[i + 3]
-
-t = BinaryTree(root)
-
-t.print_tree()
+    def show_neighbors(self, vertex):
+        if vertex not in self.edges.keys():
+            return set()
+        return self.edges[vertex]
