@@ -52,7 +52,7 @@ class Grid:
             print()
 
 class Stack:
-    def __init__(self, limit):
+    def __init__(self, limit = 65535):
         self.limit = limit
         self.arr = [None] * self.limit
         self.index = 0
@@ -85,7 +85,7 @@ class Stack:
         return self.arr[self.index]
 
 class Queue:
-    def __init__(self, limit):
+    def __init__(self, limit = 65535):
         self.limit = limit
         self.arr = [None] * (self.limit + 1)
         self.front = 0
@@ -95,7 +95,7 @@ class Queue:
         return self.rear == self.front
 
     def isFull(self):
-        return self.front == self.rear % self.limit + 1
+        return self.front == (self.rear % self.limit) + 1
 
     def peek(self):
         if self.isEmpty():
@@ -107,12 +107,12 @@ class Queue:
         if self.isFull():
             print("The queue is full")
             return -1
+            
+        self.arr[self.rear] = value
 
         self.rear = self.rear + 1
         if self.rear > self.limit:
             self.rear = 0
-            
-        self.arr[self.rear] = value
 
     def dequeue(self):
         if self.isEmpty():
@@ -120,10 +120,9 @@ class Queue:
             return -1
 
         front = self.arr[self.front]
-
         self.front = self.front + 1
         if self.front > self.limit:
-            self.front = 0
+            self.front = None
 
         return front
 
@@ -402,3 +401,70 @@ class Graph:
         if vertex not in self.edges.keys():
             return set()
         return self.edges[vertex]
+
+    def dfs(self, src, dst):
+        s = Stack()
+        s.push(src)
+
+        visited = {v: False for v in self.vertices}
+
+        while not s.isEmpty():
+            currNode = s.pop()
+
+            if currNode == dst:
+                return True
+
+            if not visited[currNode]:
+                visited[currNode] = True
+                for v in self.edges[currNode]:
+                    s.push(v)
+
+        return False
+
+    def bfs(self, src, dst, pred = {}):
+        q = Queue()
+        q.enqueue(src)
+
+        visited = {v: False for v in self.vertices}
+        visited[src] = True
+
+        while not q.isEmpty():
+            currNode = q.dequeue()
+
+            for v in self.edges[currNode]:
+                if not visited[v]:
+                    q.enqueue(v)
+                    visited[v] = True
+                    pred[v] = currNode
+
+                    if v == dst:
+                        return True
+
+        return False
+
+    def shortest_path_helper(self, src, dst):
+        predecessors = {v: None for v in self.vertices}
+
+        if not self.bfs(src, dst, predecessors):
+            return -1
+
+        path = []
+        currNode = dst
+
+        while currNode != src:
+            currNode = predecessors[currNode]
+            path.append(currNode)
+
+        return path
+
+    def shortest_path(self, src, dst):
+        path = self.shortest_path_helper(src, dst)
+
+        for n in path[::-1]:
+            print(n, end = " -> ")
+
+        print(dst)
+
+    def shortest_path_length(self, src, dst):
+        return len(self.shortest_path_helper(src, dst)) + 1
+
