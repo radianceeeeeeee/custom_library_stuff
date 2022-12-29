@@ -379,34 +379,34 @@ class Tree:
 
 class Graph:
     def __init__(self):
-        self.vertices = set()
-        self.edges = {}
+        self.vertices = {}
 
     def add_vertex(self, value):
-        self.vertices.add(value)
+        if value not in self.vertices.keys():
+            self.vertices[value] = set()
     
     def add_edge(self, v1, v2, undirected = True):
-        if v1 in self.edges.keys():
-            self.edges[v1].add(v2)
+        if v1 in self.vertices.keys():
+            self.vertices[v1].add(v2)
         else:
-            self.edges[v1] = {v2}
+            self.vertices[v1] = {v2}
 
         if undirected:
-            if v2 in self.edges.keys():
-                self.edges[v2].add(v1)
+            if v2 in self.vertices.keys():
+                self.vertices[v2].add(v1)
             else:
-                self.edges[v2] = {v1}            
+                self.vertices[v2] = {v1}            
 
     def show_neighbors(self, vertex):
-        if vertex not in self.edges.keys():
+        if vertex not in self.vertices.keys():
             return set()
-        return self.edges[vertex]
+        return self.vertices[vertex]
 
     def dfs(self, src, dst):
         s = Stack()
         s.push(src)
 
-        visited = {v: False for v in self.vertices}
+        visited = {v: False for v in self.vertices.keys()}
 
         while not s.isEmpty():
             currNode = s.pop()
@@ -416,7 +416,7 @@ class Graph:
 
             if not visited[currNode]:
                 visited[currNode] = True
-                for v in self.edges[currNode]:
+                for v in self.vertices[currNode]:
                     s.push(v)
 
         return False
@@ -425,13 +425,13 @@ class Graph:
         q = Queue()
         q.enqueue(src)
 
-        visited = {v: False for v in self.vertices}
+        visited = {v: False for v in self.vertices.keys()}
         visited[src] = True
 
         while not q.isEmpty():
             currNode = q.dequeue()
 
-            for v in self.edges[currNode]:
+            for v in self.vertices[currNode]:
                 if not visited[v]:
                     q.enqueue(v)
                     visited[v] = True
@@ -468,3 +468,29 @@ class Graph:
     def shortest_path_length(self, src, dst):
         return len(self.shortest_path_helper(src, dst)) + 1
 
+class WeightedGraph:
+    def __init__(self):
+        self.vertices = set()
+        self.edges = {}
+
+    def add_vertex(self, value):
+        self.vertices.add(value)
+
+    def add_edge(self, v1, v2, weight, undirected = True):
+        self.edges[(v1, v2)] = weight
+
+        if undirected:
+            self.edges[(v2, v1)] = weight
+
+    def show_neighbors(self, vertex):
+        if vertex not in self.vertices:
+            return set()
+
+        neighbors = set()
+        for e in self.edges.keys():
+            if vertex == e[0]:
+                neighbors.add((e[1], self.edges[e]))
+            if vertex == e[1]:
+                neighbors.add((e[0], self.edges[e]))
+
+        return neighbors
